@@ -6,4 +6,18 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CriterioDesempateRepository extends JpaRepository<CriterioDesempate, Long> {
+
+    boolean existsByNomeCriterioDesempateIgnoreCase(String nomeCriterioDesempate);
+
+    boolean existsByNomeCriterioDesempateIgnoreCaseAndIdenCriterioDesempateNot(
+            String nomeCriterioDesempate,
+            Long idenCriterioDesempate
+    );
+
+    boolean existsByCodigoCriterioDesempateIgnoreCase(String codigoCriterioDesempate);
+
+    boolean existsByCodigoCriterioDesempateIgnoreCaseAndIdenCriterioDesempateNot(
+            String codigoCriterioDesempate,
+            Long idenCriterioDesempate
+    );
 }

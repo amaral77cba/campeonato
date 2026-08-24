@@ -4,7 +4,17 @@ import com.amarildo.campeonato.entity.enums.SentidoOrdenacao;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "criteriodesempate")
+@Table(name = "criteriodesempate",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_criteriodesempate_nome",
+                        columnNames = "nome_criteriodesempate"
+                ),
+                @UniqueConstraint(
+                        name = "uk_criteriodesempate_codigo",
+                        columnNames = "codigo_criteriodesempate"
+                )
+        })
 public class CriterioDesempate {
 
     @Id
@@ -12,10 +22,10 @@ public class CriterioDesempate {
     @Column(name = "iden_criteriodesempate")
     private Long idenCriterioDesempate;
 
-    @Column(name = "nome_criteriodesempate", nullable = false, length = 100, unique = true)
+    @Column(name = "nome_criteriodesempate", nullable = false, length = 100)
     private String nomeCriterioDesempate;
 
-    @Column(name = "codigo_criteriodesempate", nullable = false, length = 50, unique = true)
+    @Column(name = "codigo_criteriodesempate", nullable = false, length = 50)
     private String codigoCriterioDesempate;
 
     @Enumerated(EnumType.STRING)

@@ -58,14 +58,61 @@ public class CriterioDesempateService {
 
     private void preencherCriterioDesempate(CriterioDesempate criterioDesempate,
                                              CriterioDesempateRequestDTO dto) {
-        if (dto.getCalculoAutomatico() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Calculo automatico deve ser informado");
+        validarCamposObrigatorios(dto);
+        validarDuplicidade(criterioDesempate, dto);
+
+        criterioDesempate.setNomeCriterioDesempate(dto.getNomeCriterioDesempate().trim());
+        criterioDesempate.setCodigoCriterioDesempate(dto.getCodigoCriterioDesempate().trim());
+        criterioDesempate.setSentidoOrdenacao(converterSentidoOrdenacao(dto.getSentidoOrdenacao()));
+        criterioDesempate.setCalculoAutomatico(
+                dto.getCalculoAutomatico() != null ? dto.getCalculoAutomatico() : Boolean.TRUE
+        );
+    }
+
+    private void validarCamposObrigatorios(CriterioDesempateRequestDTO dto) {
+        if (dto.getNomeCriterioDesempate() == null || dto.getNomeCriterioDesempate().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome do criterio de desempate deve ser informado");
         }
 
-        criterioDesempate.setNomeCriterioDesempate(dto.getNomeCriterioDesempate());
-        criterioDesempate.setCodigoCriterioDesempate(dto.getCodigoCriterioDesempate());
-        criterioDesempate.setSentidoOrdenacao(converterSentidoOrdenacao(dto.getSentidoOrdenacao()));
-        criterioDesempate.setCalculoAutomatico(dto.getCalculoAutomatico());
+        if (dto.getCodigoCriterioDesempate() == null || dto.getCodigoCriterioDesempate().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Codigo do criterio de desempate deve ser informado");
+        }
+    }
+
+    private void validarDuplicidade(CriterioDesempate criterioDesempate, CriterioDesempateRequestDTO dto) {
+        boolean nomeDuplicado;
+        boolean codigoDuplicado;
+
+        String nome = dto.getNomeCriterioDesempate().trim();
+        String codigo = dto.getCodigoCriterioDesempate().trim();
+
+        if (criterioDesempate.getIdenCriterioDesempate() == null) {
+            nomeDuplicado = criterioDesempateRepository.existsByNomeCriterioDesempateIgnoreCase(nome);
+            codigoDuplicado = criterioDesempateRepository.existsByCodigoCriterioDesempateIgnoreCase(codigo);
+        } else {
+            nomeDuplicado = criterioDesempateRepository.existsByNomeCriterioDesempateIgnoreCaseAndIdenCriterioDesempateNot(
+                    nome,
+                    criterioDesempate.getIdenCriterioDesempate()
+            );
+            codigoDuplicado = criterioDesempateRepository.existsByCodigoCriterioDesempateIgnoreCaseAndIdenCriterioDesempateNot(
+                    codigo,
+                    criterioDesempate.getIdenCriterioDesempate()
+            );
+        }
+
+        if (nomeDuplicado) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Ja existe criterio de desempate com este nome"
+            );
+        }
+
+        if (codigoDuplicado) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Ja existe criterio de desempate com este codigo"
+            );
+        }
     }
 
     private SentidoOrdenacao converterSentidoOrdenacao(String sentido) {
